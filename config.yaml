@@ -1,0 +1,21 @@
+baseURL: https://msanft.github.io/
+languageCode: en-us
+title: Moritz Sanft
+theme: Marchie
+copyright: Moritz Sanft
+pygmentsstyle: gruvbox
+pygmentscodefences: true
+pygmentscodefencesguesssyntax: true
+paginate: 3
+params:
+  mode: light
+  useCDN: false
+  mathjax: true
+  katex: true
+  social:
+    - name: GitHub
+      url: https://github.com/athul/archie
+    - name: Twitter
+      url: https://twitter.com/athulcajay/
+    - name: GitLab
+      url: https://gitlab.com/athul/
