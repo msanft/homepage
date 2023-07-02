@@ -1,7 +1,7 @@
 baseURL: https://msanft.github.io/
 languageCode: en-us
 title: Moritz Sanft
-theme: Marchie
+theme: marchie
 copyright: Moritz Sanft
 pygmentsstyle: gruvbox
 pygmentscodefences: true
