@@ -40,6 +40,7 @@ blockquote {
 a {
   color: inherit;
   text-decoration: underline 2px;
+  text-decoration-color: #000000;
 }
 
 a:hover {
@@ -252,10 +253,6 @@ time {
 
 svg {
   max-height: 15px;
-}
-
-.soc:hover {
-  color: #000000;
 }
 
 .draft-label {
