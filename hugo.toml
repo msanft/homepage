@@ -1,0 +1,10 @@
+baseURL = "https://msanft.de/"
+languageCode = "en-us"
+title = "Moritz Sanft"
+
+enableGitInfo = true
+enableRobotsTXT = true
+
+[markup]
+[markup.highlight]
+noClasses = false
