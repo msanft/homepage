@@ -10,6 +10,24 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; }; in
       {
+        packages.default = pkgs.stdenvNoCC.mkDerivation {
+          name = "homepage";
+          version = "0-unstable-2024-02-08";
+
+          src = ./.;
+
+          buildInputs = with pkgs; [ hugo ];
+
+          buildPhase = ''
+            hugo
+          '';
+
+          installPhase = ''
+            mkdir -p $out
+            cp -r public/* $out
+          '';
+        };
+
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             hugo
