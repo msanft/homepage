@@ -2,6 +2,8 @@ baseURL = "https://msanft.de/"
 languageCode = "en-us"
 title = "Moritz Sanft"
 
+sectionPagesMenu = 'main'
+
 enableRobotsTXT = true
 
 [markup]

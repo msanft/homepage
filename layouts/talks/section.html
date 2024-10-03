@@ -1,0 +1,17 @@
+{{ define "main" }}
+{{ .Content }}
+<ul>
+    {{ range .Pages }}
+    <li class="talkSummary">
+        <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+        <ul class="talkHeader">
+            {{ $dateMachine := .Date | time.Format "2006-01-02T15:04:05-07:00" }}
+            {{ $dateHuman := .Date | time.Format ":date_long" }}
+            <li><time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time></li>
+            <li><a href="{{ .Params.slides }}">Slides</a></li>
+            <li><a href="{{ .Params.video }}">Video</a></li>
+        </ul>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}

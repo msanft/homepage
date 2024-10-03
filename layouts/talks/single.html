@@ -1,0 +1,19 @@
+{{ define "main" }}
+<div class="postHeader">
+    <h1>{{ .Title }}</h1>
+    {{ $dateMachine := .Date | time.Format "2006-01-02T15:04:05-07:00" }}
+    {{ $dateHuman := .Date | time.Format ":date_long" }}
+    <div class="talkHeader">
+        <li><time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time></li>
+        <li><a href="{{ .Params.slides }}">Slides</a></li>
+        <li><a href="{{ .Params.video }}">Video</a></li>
+    </div>
+    <ul>
+    </ul>
+</div>
+<div>
+
+</div>
+{{ .Content }}
+{{ partial "terms.html" (dict "taxonomy" "tags" "page" .) }}
+{{ end }}
