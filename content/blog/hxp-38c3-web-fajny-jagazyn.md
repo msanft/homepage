@@ -145,7 +145,7 @@ After wasting quite some time on this, we concluded that we're probably just ver
 About 24 hours into the CTF, with the challenge being solved twice, we thought that there will probably be other teams to solve this challenge before the CTF ends.
 As we had an arbitrary read (under the given constraints), allowing us to read the entire procfs, and the challenge server being shared among the teams,
 we came to realize that we could just monitor the procfs and read the FDs of new processes to just snag a reference to the flag file if another team would solve the challenge. After shortly clarifying with the hxp team to verify that this would not be regarded as an attack to the CTF infrastructure (thanks hxp team for allowing us!),
-we just implemented our approach:
+we just implemented this approach:
 
 ```py
 import requests, time, threading, os
@@ -238,10 +238,10 @@ if err = checkPath(name); err != nil {
 }
 ```
 
-A proper explanation and solve script in the writeup of the challenge author. [^2]
+A proper explanation and solve script can be found in the writeup of the challenge author. [^2]
 
-All-in-all, this was a very interesting challenge. Even though having very little attack surface, the vulnerability still didn't stood out to experienced web
-players, showing that such critical code paths should be analyzed with utmost care (and that you probably shouldn't serve a key-value store for everybody on your
+All-in-all, this was a very interesting challenge. Although having very little attack surface, the vulnerability still didn't stood out to experienced web
+players, showing that such critical code paths need to be analyzed with utmost care (and that you probably shouldn't serve a key-value store for everybody on your
 full file system, lol).
 
 Thanks for reading!

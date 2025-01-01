@@ -6,6 +6,7 @@ html {
   font-family: sans-serif;
   line-height: 1.5;
   font-family: 'EB Garamond', serif;
+  overflow-wrap: break-word;
 }
 
 .content {
@@ -30,6 +31,7 @@ footer {
     justify-content: space-between;
     list-style: none;
     padding: 0;
+    gap: 1rem;
   }
 }
 
