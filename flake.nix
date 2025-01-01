@@ -12,7 +12,7 @@
       {
         packages.default = pkgs.stdenvNoCC.mkDerivation {
           name = "homepage";
-          version = "0-unstable-2024-02-08";
+          version = "0-unstable-2024-12-30";
 
           src = ./.;
 

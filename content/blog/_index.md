@@ -2,4 +2,4 @@
 title = 'Blog'
 +++
 
-WIP.
+Find my blog posts here.

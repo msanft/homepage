@@ -443,3 +443,8 @@ nav {
 
 /* TextWhitespace */
 .chroma .w {}
+
+div.highlight pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
