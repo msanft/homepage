@@ -15,7 +15,9 @@ increasing dominance of AI systems in the competitive Go community.[^3]
 It would be megalomaniac to compare myself to someone like Sedol, but
 with the recent influence of AI systems on competitive CTFs, I claim
 to have felt just a fraction of what Sedol must've felt after being
-beaten by AlphaGo.
+beaten by AlphaGo. Many CTF players I've spoken too think the same.
+In this blog post, I'll explore why that is, and what the paths out of
+this situation might look like.
 
 > _Note: The rest of this blog post assumes familiarity with what CTFs
 > are, so now would probably be a good time to fire up a good ol'
@@ -48,8 +50,31 @@ also the average AI doomsayers pronouncing CTFs dead already. As so
 often in today's very polarized world, I think the answer is somewhere
 in the middle of these two.
 
+Despite all polarization, people do seem to agree on one thing, though:
+CTFs have changed dramatically with the proliferation of AI. Challenges
+that would have taken teams of the smartest human beings in the field
+days of active thinking before can now be solved in ~hours, and with
+almost no active thinking by those human beings.
+
 ## CTFs and _CTFs_
+
+In the extended discourse on AI in CTFs by people outside of the CTF
+community, such as the model labs[^4], a common misconception is
+prevalent. There are many events that label themselves as CTFs. This
+doesn't make all of these events the same, and reffering to them as a
+single homogenous group when e.g., discussing benchmark results, is
+misleading, at the very least.
+
+Unfortunately, it proved to be a non-trivial problem for me to assign
+these CTFs some sort of categories based on facts, so I'll just do this
+based on my gut feeling here. I intentionally will not judge any of
+these events. Not only because I'm not in a position to do so, but also
+because I think all of them are a net benefit to the general security
+community.
+
+TODO: CTF Political Compass
 
 [^1]: <https://en.wikipedia.org/wiki/AlphaGo_versus_Lee_Sedol#Lee_Sedol>
 [^2]: <https://en.wikipedia.org/wiki/AlphaGo_versus_Lee_Sedol#Responses>
 [^3]: <https://www.theverge.com/2019/11/27/20985260/ai-go-alphago-lee-se-dol-retired-deepmind-defeat>
+[^4]: <https://red.anthropic.com/2025/cyber-competitions/>
