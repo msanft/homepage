@@ -86,6 +86,10 @@ a {
   height: auto;
 }
 
+.markdown a {
+  overflow-wrap: anywhere;
+}
+
 .markdown pre {
   overflow-x: auto;
   padding: 1rem;
