@@ -1,4 +1,5 @@
 result
-.hugo_build.lock
-public
+build
+node_modules
+.svelte-kit
 .direnv/
