@@ -1,5 +1,5 @@
 {
-  description = "Nix Flake containing the basic tools for tinkering with this website.";
+  description = "Moritz Sanft's SvelteKit homepage.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -14,27 +14,54 @@
         pkgs = import nixpkgs { inherit system; };
       in
       {
-        packages.default = pkgs.stdenvNoCC.mkDerivation {
-          name = "homepage";
-          version = "0-unstable-2025-03-10";
+        packages.default = pkgs.stdenv.mkDerivation (finalAttrs: {
+          pname = "homepage";
+          version = "0-unstable-2026-08-24";
 
-          src = ./.;
+          src = pkgs.lib.cleanSourceWith {
+            src = ./.;
+            filter =
+              path: _type:
+              let
+                name = builtins.baseNameOf (toString path);
+              in
+              !(builtins.elem name [
+                "node_modules"
+                ".svelte-kit"
+                "build"
+                "result"
+              ]);
+          };
 
-          buildInputs = with pkgs; [ hugo ];
+          nativeBuildInputs = [
+            pkgs.nodejs_22
+            pkgs.pnpm_10.configHook
+          ];
+
+          pnpmDeps = pkgs.pnpm_10.fetchDeps {
+            inherit (finalAttrs) pname version src;
+            fetcherVersion = 2;
+            hash = "sha256-yB8ymONwkfvH47AqEWKEga9cuK9AtAyQpRilHyAs0dc=";
+          };
 
           buildPhase = ''
-            hugo
+            runHook preBuild
+            pnpm build
+            runHook postBuild
           '';
 
           installPhase = ''
+            runHook preInstall
             mkdir -p $out
-            cp -r public/* $out
+            cp -r build/. $out/
+            runHook postInstall
           '';
-        };
+        });
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            hugo
+            nodejs_22
+            pnpm_10
           ];
         };
       }

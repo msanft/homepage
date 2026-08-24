@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  font-family: 'EB Garamond', serif;
+  color: #222;
+  line-height: 1.5;
+  font-synthesis: none;
+}
+
+body {
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.site {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+header {
+  display: flex;
+  gap: 2rem;
+  align-items: baseline;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid currentColor;
+}
+
+.site-title {
+  margin: 0;
+}
+
+.site-title a {
+  text-decoration: none;
+}
+
+nav ul,
+footer ul,
+.talk-meta {
+  display: flex;
+  gap: 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.section-list {
+  padding-left: 1.25rem;
+}
+
+.section-list > li {
+  margin: 1.5rem 0;
+}
+
+.section-list h2,
+.post-header h1 {
+  margin: 0 0 0.25rem;
+}
+
+.talk-meta {
+  gap: 1rem;
+}
+
+.post-header {
+  display: block;
+  margin-bottom: 2rem;
+  border: 0;
+}
+
+footer {
+  margin-top: 2rem;
+  border-top: 1px solid currentColor;
+}
+
+footer ul {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.markdown img,
+.markdown video {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown a {
+  overflow-wrap: anywhere;
+}
+
+.markdown pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+
+.markdown code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+}
+
+.markdown :not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  header,
+  footer ul {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  header {
+    padding-bottom: 0.5rem;
+  }
+
+  nav ul {
+    gap: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  footer ul {
+    align-items: flex-start;
+  }
+}

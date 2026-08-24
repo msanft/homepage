@@ -1,0 +1,12 @@
+export const site = {
+  title: 'Moritz Sanft',
+  url: 'https://msanft.foo',
+  description: 'Security software engineer and security researcher.',
+  email: 'moritz.sanft <at> outlook.de',
+  links: [
+    ['Mastodon', 'https://infosec.exchange/@moritz'],
+    ['X', 'https://x.com/stdoutput'],
+    ['LinkedIn', 'https://www.linkedin.com/in/moritz-sanft-43525a201/'],
+    ['GitHub', 'https://github.com/msanft']
+  ]
+};
