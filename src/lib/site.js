@@ -1,6 +1,6 @@
 export const site = {
   title: 'Moritz Sanft',
-  url: 'https://msanft.de',
+  url: 'https://msanft.foo',
   description: 'Security software engineer and security researcher.',
   email: 'moritz.sanft <at> outlook.de',
   links: [
