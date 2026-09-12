@@ -12,14 +12,14 @@ importers:
   .:
     dependencies:
       marked:
-        specifier: ^18.0.11
-        version: 18.0.11
+        specifier: ^18.0.12
+        version: 18.0.12
       marked-footnote:
         specifier: ^1.4.0
-        version: 1.4.0(marked@18.0.11)
+        version: 1.4.0(marked@18.0.12)
       marked-gfm-heading-id:
         specifier: ^4.1.4
-        version: 4.1.4(marked@18.0.11)
+        version: 4.1.4(marked@18.0.12)
       smol-toml:
         specifier: ^1.8.0
         version: 1.8.0
@@ -388,8 +388,8 @@ packages:
     peerDependencies:
       marked: '>=13 <19'
 
-  marked@18.0.11:
-    resolution: {integrity: sha512-HnslJfsZkRPBDJRHvVtAaWlZHEpSu7u8LgQuJCELjRKuWR+hpq4A7sLq3p8HaI9ypVoXDXxV34CsQJEe1+J5Aw==}
+  marked@18.0.12:
+    resolution: {integrity: sha512-LEm4ga2YeI2T3GVHj9b0BaDPPk93LLTHMFeMyQbNIzPxc8vCI0y/scy0ZA6z6lXKyT9j9Nhl/OC6ZYKYGuFScA==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -754,16 +754,16 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  marked-footnote@1.4.0(marked@18.0.11):
+  marked-footnote@1.4.0(marked@18.0.12):
     dependencies:
-      marked: 18.0.11
+      marked: 18.0.12
 
-  marked-gfm-heading-id@4.1.4(marked@18.0.11):
+  marked-gfm-heading-id@4.1.4(marked@18.0.12):
     dependencies:
       github-slugger: 2.0.0
-      marked: 18.0.11
+      marked: 18.0.12
 
-  marked@18.0.11: {}
+  marked@18.0.12: {}
 
   mri@1.2.0: {}
 
