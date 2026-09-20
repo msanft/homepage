@@ -10,7 +10,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json"
   },
   "dependencies": {
-    "marked": "^18.0.12",
+    "marked": "^18.0.13",
     "marked-footnote": "^1.4.0",
     "marked-gfm-heading-id": "^4.1.4",
     "smol-toml": "^1.8.0"
@@ -23,7 +23,7 @@
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
     "typescript": "^6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.3.0"
   },
   "pnpm": {
     "overrides": {
