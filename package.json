@@ -13,7 +13,7 @@
     "marked": "^18.0.13",
     "marked-footnote": "^1.4.0",
     "marked-gfm-heading-id": "^4.1.4",
-    "smol-toml": "^1.8.0"
+    "smol-toml": "^1.9.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
