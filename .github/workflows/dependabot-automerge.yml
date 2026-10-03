@@ -4,49 +4,55 @@ on:
   workflow_run:
     workflows: [Website CI]
     types: [completed]
+  workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+permissions: {}
 
 concurrency:
-  group: dependabot-automerge-${{ github.event.workflow_run.head_branch }}
+  group: dependabot-automerge-${{ github.event.workflow_run.head_branch || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  merge:
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.head_repository.full_name == github.repository
+  select:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: read
+    outputs:
+      number: ${{ steps.select.outputs.number }}
+      head: ${{ steps.select.outputs.head }}
+      base: ${{ steps.select.outputs.base }}
     steps:
-      # This privileged workflow runs from main. Never check out PR code or
-      # download its artifacts here; inspect GitHub's API metadata only.
-      - name: Merge a tested Dependabot update and deploy it
+      - name: Select a verified Dependabot PR with passing PR checks
+        id: select
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const run = context.payload.workflow_run;
-            if (run.path !== '.github/workflows/ci.yml') {
-              core.setFailed('Unexpected workflow path.');
-              return;
+            if (run && (run.path !== '.github/workflows/ci.yml' ||
+                run.conclusion !== 'success' ||
+                run.head_repository?.full_name !== process.env.GITHUB_REPOSITORY)) return;
+
+            let candidates;
+            if (run?.event === 'pull_request') {
+              candidates = (run.pull_requests || []).map(({ number }) => number);
+            } else {
+              const prs = await github.paginate(github.rest.pulls.list, {
+                ...context.repo, state: 'open', base: 'main', per_page: 100
+              });
+              candidates = prs.map(({ number }) => number);
             }
 
-            for (const linked of run.pull_requests) {
+            for (const number of candidates) {
               const { data: pr } = await github.rest.pulls.get({
-                ...context.repo, pull_number: linked.number
+                ...context.repo, pull_number: number
               });
               if (pr.state !== 'open' || pr.draft ||
                   pr.user.login !== 'dependabot[bot]' ||
                   pr.base.ref !== 'main' ||
                   pr.head.repo?.full_name !== process.env.GITHUB_REPOSITORY ||
-                  pr.head.sha !== run.head_sha) {
-                core.info(`Skipping PR #${pr.number}: not a current Dependabot update.`);
-                continue;
-              }
+                  (run?.event === 'pull_request' && pr.head.sha !== run.head_sha)) continue;
 
               const { data: commit } = await github.rest.repos.getCommit({
                 ...context.repo, ref: pr.head.sha
@@ -55,40 +61,166 @@ jobs:
                 /^\s+update-type: (version-update:semver-[a-z]+)\s*$/gm
               )].map((match) => match[1]);
               if (commit.author?.login !== 'dependabot[bot]' ||
-                  !commit.commit.verification.verified ||
-                  updates.length === 0 ||
+                  !commit.commit.verification.verified || updates.length === 0 ||
                   !updates.every((type) => [
                     'version-update:semver-patch', 'version-update:semver-minor'
-                  ].includes(type))) {
-                core.info(`Skipping PR #${pr.number}: requires manual review.`);
-                continue;
-              }
+                  ].includes(type))) continue;
 
-              // GitHub enforces the required Website checks and up-to-date
-              // branch rule. The SHA guard rejects a new, untested PR head.
-              try {
-                const { data: result } = await github.rest.pulls.merge({
-                  ...context.repo,
-                  pull_number: pr.number,
-                  sha: run.head_sha,
-                  merge_method: 'squash'
-                });
-                if (!result.merged) {
-                  core.setFailed(`PR #${pr.number} was not merged: ${result.message}`);
-                  return;
-                }
-              } catch (error) {
-                if ([405, 409].includes(error.status)) {
-                  core.notice(`PR #${pr.number} is blocked or changed; waiting for fresh CI.`);
-                  continue;
-                }
-                throw error;
-              }
-
-              // A GITHUB_TOKEN merge does not trigger push workflows.
-              // workflow_dispatch does, so deploy the merged main explicitly.
-              await github.rest.actions.createWorkflowDispatch({
-                ...context.repo, workflow_id: 'deploy.yml', ref: 'main'
+              // A dispatch or main push may select an older PR. Require its
+              // existing Website check before testing the combined tree.
+              const { data: checks } = await github.rest.checks.listForRef({
+                ...context.repo, ref: pr.head.sha, check_name: 'Website checks',
+                filter: 'latest'
               });
-              core.info(`Merged PR #${pr.number} and dispatched the Pages deployment.`);
+              const latest = checks.check_runs
+                .filter((check) => check.app?.id === 15368)
+                .sort((a, b) => b.id - a.id)[0];
+              if (latest?.conclusion !== 'success') continue;
+
+              const { data: base } = await github.rest.repos.getBranch({
+                ...context.repo, branch: 'main'
+              });
+              core.setOutput('number', String(number));
+              core.setOutput('head', pr.head.sha);
+              core.setOutput('base', base.commit.sha);
+              core.info(`Testing PR #${number} with main at ${base.commit.sha}.`);
+              return;
             }
+            core.info('No eligible Dependabot PR is ready to test.');
+
+  website:
+    if: needs.select.outputs.number != ''
+    needs: select
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      stale: ${{ steps.verify.outputs.stale }}
+    steps:
+      # This job installs PR dependencies. Its token is read-only, and no
+      # checkout credentials are left for the code under test.
+      - name: Checkout proposed merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: refs/pull/${{ needs.select.outputs.number }}/merge
+          persist-credentials: false
+
+      - name: Verify exact PR and main commits
+        id: verify
+        env:
+          EXPECTED_HEAD: ${{ needs.select.outputs.head }}
+          EXPECTED_BASE: ${{ needs.select.outputs.base }}
+        run: |
+          read -r merge base head < <(git show -s --format='%H %P' HEAD)
+          if [[ "$base" != "$EXPECTED_BASE" || "$head" != "$EXPECTED_HEAD" ]]; then
+            echo 'stale=true' >> "$GITHUB_OUTPUT"
+            echo 'The proposed merge changed; retrying against current main.'
+          fi
+
+      - name: Setup pnpm
+        if: steps.verify.outputs.stale != 'true'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Setup Node.js
+        if: steps.verify.outputs.stale != 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.verify.outputs.stale != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Check Svelte and JavaScript
+        if: steps.verify.outputs.stale != 'true'
+        run: pnpm check
+
+      - name: Build production site
+        if: steps.verify.outputs.stale != 'true'
+        run: pnpm build
+
+      - name: Install Chromium
+        if: steps.verify.outputs.stale != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Test production site
+        if: steps.verify.outputs.stale != 'true'
+        run: pnpm test
+
+  retry:
+    if: needs.website.outputs.stale == 'true'
+    needs: website
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Retry after a concurrent change
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              ...context.repo, workflow_id: 'dependabot-automerge.yml', ref: 'main'
+            });
+
+  merge:
+    if: needs.website.result == 'success' && needs.website.outputs.stale != 'true'
+    needs: [select, website]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - name: Merge tested PR and deploy
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_NUMBER: ${{ needs.select.outputs.number }}
+          TESTED_HEAD: ${{ needs.select.outputs.head }}
+          TESTED_BASE: ${{ needs.select.outputs.base }}
+        with:
+          script: |
+            const number = Number(process.env.PR_NUMBER);
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo, pull_number: number
+            });
+            const { data: base } = await github.rest.repos.getBranch({
+              ...context.repo, branch: 'main'
+            });
+            if (pr.state !== 'open' || pr.draft ||
+                pr.user.login !== 'dependabot[bot]' ||
+                pr.base.ref !== 'main' ||
+                pr.head.repo?.full_name !== process.env.GITHUB_REPOSITORY ||
+                pr.head.sha !== process.env.TESTED_HEAD ||
+                base.commit.sha !== process.env.TESTED_BASE) {
+              core.notice(`PR #${number} or main changed during testing; retrying.`);
+              await github.rest.actions.createWorkflowDispatch({
+                ...context.repo, workflow_id: 'dependabot-automerge.yml', ref: 'main'
+              });
+              return;
+            }
+
+            try {
+              const { data: result } = await github.rest.pulls.merge({
+                ...context.repo, pull_number: number,
+                sha: process.env.TESTED_HEAD, merge_method: 'squash'
+              });
+              if (!result.merged) throw new Error(result.message);
+            } catch (error) {
+              if ([405, 409].includes(error.status)) {
+                core.notice(`PR #${number} is blocked or conflicted; leaving it open.`);
+                return;
+              }
+              throw error;
+            }
+
+            // GITHUB_TOKEN merges do not fire push workflows. Dispatch Pages
+            // and a new pass for other eligible dependency PRs explicitly.
+            await github.rest.actions.createWorkflowDispatch({
+              ...context.repo, workflow_id: 'deploy.yml', ref: 'main'
+            });
+            await github.rest.actions.createWorkflowDispatch({
+              ...context.repo, workflow_id: 'dependabot-automerge.yml', ref: 'main'
+            });
+            core.info(`Merged PR #${number} and dispatched the Pages deployment.`);

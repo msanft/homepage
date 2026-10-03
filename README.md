@@ -25,16 +25,16 @@ pnpm build
 pnpm test
 ```
 
-The `main` branch requires the GitHub Actions **Website checks** status check and
-an up-to-date branch before merging. Keep this protection enabled: it is part of
-the dependency auto-merge gate.
+The `main` branch requires the GitHub Actions **Website checks** status check.
+Keep this protection enabled: it is part of the dependency auto-merge gate.
 
-After successful PR CI, `Dependabot auto-merge` squash-merges verified Dependabot
-patch and minor updates whose current commit is the one CI tested. Major updates
-and unknown update types stay open for review. Blocked or outdated PRs remain
-open until they are updated and pass CI again. The merge workflow only reads
-GitHub API metadata and never executes PR code. It explicitly dispatches the
-Pages deployment because merges made with `GITHUB_TOKEN` do not trigger push
+After successful PR CI, `Dependabot auto-merge` runs the same website checks on
+the PR combined with the latest `main`. Its read-only test job has no write
+credentials while it installs dependencies or runs PR code. A separate merge
+job squash-merges verified Dependabot patch and minor updates only when the PR
+and `main` still match the commits it tested. Major updates, failed checks, and
+conflicting PRs stay open for review. The merge workflow explicitly dispatches
+the Pages deployment because merges made with `GITHUB_TOKEN` do not trigger push
 workflows. No additional token or secret is needed.
 
 ## Content
