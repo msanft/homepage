@@ -3,3 +3,5 @@ build
 node_modules
 .svelte-kit
 .direnv/
+playwright-report/
+test-results/
