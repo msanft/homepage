@@ -9,6 +9,34 @@ pnpm dev
 
 `pnpm check` checks the source and `pnpm build` writes the deployable site to `build/`.
 
+## Website checks and dependency updates
+
+Pull requests run `pnpm check`, a production build, and Playwright smoke tests in
+desktop and mobile Chromium. The tests cover client-side navigation, every page
+in the sitemap, internal links, images, RSS feeds, and public static assets.
+
+Run the same checks locally with the pnpm version in `packageManager`:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec playwright install chromium
+pnpm check
+pnpm build
+pnpm test
+```
+
+The `main` branch requires the GitHub Actions **Website checks** status check and
+an up-to-date branch before merging. Keep this protection enabled: it is part of
+the dependency auto-merge gate.
+
+After successful PR CI, `Dependabot auto-merge` squash-merges verified Dependabot
+patch and minor updates whose current commit is the one CI tested. Major updates
+and unknown update types stay open for review. Blocked or outdated PRs remain
+open until they are updated and pass CI again. The merge workflow only reads
+GitHub API metadata and never executes PR code. It explicitly dispatches the
+Pages deployment because merges made with `GITHUB_TOKEN` do not trigger push
+workflows. No additional token or secret is needed.
+
 ## Content
 
 Content stays in Markdown under `content/`, with TOML front matter between `+++` markers.

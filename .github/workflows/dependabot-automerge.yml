@@ -1,0 +1,94 @@
+name: Dependabot auto-merge
+
+on:
+  workflow_run:
+    workflows: [Website CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: dependabot-automerge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # This privileged workflow runs from main. Never check out PR code or
+      # download its artifacts here; inspect GitHub's API metadata only.
+      - name: Merge a tested Dependabot update and deploy it
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            if (run.path !== '.github/workflows/ci.yml') {
+              core.setFailed('Unexpected workflow path.');
+              return;
+            }
+
+            for (const linked of run.pull_requests) {
+              const { data: pr } = await github.rest.pulls.get({
+                ...context.repo, pull_number: linked.number
+              });
+              if (pr.state !== 'open' || pr.draft ||
+                  pr.user.login !== 'dependabot[bot]' ||
+                  pr.base.ref !== 'main' ||
+                  pr.head.repo?.full_name !== process.env.GITHUB_REPOSITORY ||
+                  pr.head.sha !== run.head_sha) {
+                core.info(`Skipping PR #${pr.number}: not a current Dependabot update.`);
+                continue;
+              }
+
+              const { data: commit } = await github.rest.repos.getCommit({
+                ...context.repo, ref: pr.head.sha
+              });
+              const updates = [...commit.commit.message.matchAll(
+                /^\s+update-type: (version-update:semver-[a-z]+)\s*$/gm
+              )].map((match) => match[1]);
+              if (commit.author?.login !== 'dependabot[bot]' ||
+                  !commit.commit.verification.verified ||
+                  updates.length === 0 ||
+                  !updates.every((type) => [
+                    'version-update:semver-patch', 'version-update:semver-minor'
+                  ].includes(type))) {
+                core.info(`Skipping PR #${pr.number}: requires manual review.`);
+                continue;
+              }
+
+              // GitHub enforces the required Website checks and up-to-date
+              // branch rule. The SHA guard rejects a new, untested PR head.
+              try {
+                const { data: result } = await github.rest.pulls.merge({
+                  ...context.repo,
+                  pull_number: pr.number,
+                  sha: run.head_sha,
+                  merge_method: 'squash'
+                });
+                if (!result.merged) {
+                  core.setFailed(`PR #${pr.number} was not merged: ${result.message}`);
+                  return;
+                }
+              } catch (error) {
+                if ([405, 409].includes(error.status)) {
+                  core.notice(`PR #${pr.number} is blocked or changed; waiting for fresh CI.`);
+                  continue;
+                }
+                throw error;
+              }
+
+              // A GITHUB_TOKEN merge does not trigger push workflows.
+              // workflow_dispatch does, so deploy the merged main explicitly.
+              await github.rest.actions.createWorkflowDispatch({
+                ...context.repo, workflow_id: 'deploy.yml', ref: 'main'
+              });
+              core.info(`Merged PR #${pr.number} and dispatched the Pages deployment.`);
+            }
