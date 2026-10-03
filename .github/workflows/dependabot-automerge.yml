@@ -11,7 +11,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: dependabot-automerge
+  group: dependabot-automerge-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: false
 
 jobs:
