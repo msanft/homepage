@@ -16,7 +16,8 @@ export async function GET() {
     `${site.url}/blog/`,
     ...posts.map((post) => `${site.url}/blog/${post.slug}/`),
     `${site.url}/talks/`,
-    ...talks.map((talk) => `${site.url}/talks/${talk.slug}/`)
+    ...talks.map((talk) => `${site.url}/talks/${talk.slug}/`),
+    `${site.url}/publications/`
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(entry).join('')}</urlset>`;
 

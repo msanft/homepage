@@ -10,8 +10,19 @@ test('homepage renders and client-side navigation works', async ({ page }) => {
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle('Moritz Sanft');
   await expect(page.getByRole('main')).toContainText('Hello, my name is Moritz.');
-  await expect(page.getByRole('heading', { name: 'Academic publications' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Academic publications' })).toHaveCount(0);
   await page.evaluate(() => { document.documentElement.dataset.navigationTest = 'loaded'; });
+
+  await page.getByRole('navigation').getByRole('link', { name: 'Publications' }).click();
+  await expect(page).toHaveURL(/\/publications\/$/);
+  await expect(page).toHaveTitle('Academic publications | Moritz Sanft');
+  await expect(page.getByRole('main')).toContainText('Find my academic publications here.');
+  await expect(page.locator('main .section-list > li')).toHaveCount(1);
+  await expect(page.locator('main time')).toHaveText('2026');
+  await expect(page.getByRole('link', { name: 'SEMSAN: a Configurable Sanitizer for Detecting System-Level Semantic Bugs' }))
+    .toHaveAttribute('href', 'https://www.usenix.org/conference/woot26/presentation/sanft');
+  await expect(page.getByRole('main')).toContainText('Moritz Sanft and Flavio Toffalini');
+  await expect(page.getByRole('main')).toContainText('20th USENIX WOOT Conference on Offensive Technologies (WOOT 26)');
 
   await page.getByRole('navigation').getByRole('link', { name: 'Blog' }).click();
   await expect(page).toHaveURL(/\/blog\/$/);
@@ -53,7 +64,7 @@ test('every published page, internal link, and image loads', async ({ page, requ
   expect(sitemap.status()).toBe(200);
   const paths = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)]
     .map(([, url]) => new URL(url).pathname);
-  expect(paths).toEqual(expect.arrayContaining(['/', '/blog/', '/talks/']));
+  expect(paths).toEqual(expect.arrayContaining(['/', '/blog/', '/talks/', '/publications/']));
   expect(paths.some((path) => /^\/blog\/[^/]+\/$/.test(path))).toBe(true);
   expect(paths.some((path) => /^\/talks\/[^/]+\/$/.test(path))).toBe(true);
   expect(paths).not.toContain('/blog/test-post/');
@@ -63,7 +74,7 @@ test('every published page, internal link, and image loads', async ({ page, requ
     const response = await page.goto(path, { waitUntil: 'networkidle' });
     expect(response?.status(), path).toBe(200);
     await expect(page.getByRole('main')).toBeVisible();
-    await expect(page.locator('main .markdown')).not.toBeEmpty();
+    await expect(page.getByRole('main')).not.toBeEmpty();
     await expect(page).toHaveTitle(/Moritz Sanft/);
 
     for (const image of await page.locator('main img').all()) {

@@ -13,6 +13,7 @@
       <ul>
         <li><a href={`${base}/blog/`}>Blog</a></li>
         <li><a href={`${base}/talks/`}>Talks</a></li>
+        <li><a href={`${base}/publications/`}>Publications</a></li>
       </ul>
     </nav>
   </header>
