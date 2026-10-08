@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+export CI=true
+TIMEFORMAT='Finished in %R seconds'
+
+# Match CI and flake.nix without installing Nix for a Node-only dev shell.
+echo 'Preparing Node 22 and the packageManager-pinned pnpm'
+toolchain="$HOME/.local/share/homepage-toolchain"
+pnpm_version="$(node -p "require('./package.json').packageManager.split('@')[1]")"
+export PATH="$toolchain/node_modules/.bin:$PATH"
+if [[ ! -x "$toolchain/node_modules/.bin/node" ]] ||
+  [[ "$(node -p 'process.versions.node.split(".")[0]')" != 22 ]] ||
+  [[ ! -x "$toolchain/node_modules/.bin/pnpm" ]] ||
+  [[ "$(pnpm --version)" != "$pnpm_version" ]]; then
+  time npm install --prefix "$toolchain" --no-audit --no-fund --package-lock=false \
+    node@22 "pnpm@$pnpm_version"
+fi
+node --version
+pnpm --version
+
+# Amp and supervised services use separate login shells. Activate this toolchain
+# only in this checkout, without duplicating PATH entries in nested shells.
+marker="# homepage orb toolchain: $repo_root"
+if ! grep -Fqx "$marker" "$HOME/.bash_profile" 2>/dev/null; then
+  cat >> "$HOME/.bash_profile" <<EOF
+
+$marker
+case "\$PWD/" in
+  "$repo_root/"*)
+    case ":\$PATH:" in
+      *":$toolchain/node_modules/.bin:"*) ;;
+      *) export PATH="$toolchain/node_modules/.bin:\$PATH" ;;
+    esac
+    ;;
+esac
+EOF
+fi
+
+echo 'Installing locked dependencies'
+time pnpm install --frozen-lockfile
+
+echo 'Checking Chromium system dependencies'
+# Playwright checks installed Debian packages; do not refresh apt on warm runs.
+if ! pnpm exec playwright install-deps chromium --dry-run; then
+  time pnpm exec playwright install-deps chromium
+fi
+
+echo 'Installing Playwright Chromium (reuses the browser cache)'
+time pnpm exec playwright install chromium
+
+echo 'Generating SvelteKit types'
+time pnpm exec svelte-kit sync

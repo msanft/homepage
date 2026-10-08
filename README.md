@@ -9,6 +9,19 @@ pnpm dev
 
 `pnpm check` checks the source and `pnpm build` writes the deployable site to `build/`.
 
+## Amp orbs
+
+`.agents/setup` prepares Node 22, the pnpm version in `packageManager`, locked
+dependencies, Playwright Chromium and its system dependencies, and SvelteKit types.
+Amp snapshots this environment for reuse; warm setup runs reuse installed tools
+and caches. Orbs use the same Node major as CI without needing the optional Nix
+shell. The toolchain is activated in login shells inside this checkout.
+
+Run `amp orb services ensure` to start the supervised dev server and get its portal
+URL. No secrets or backing services are required, so `.agents/resume` has no work
+to do. Setup changes must reach the project's default branch before future orbs
+can use them.
+
 ## Website checks and dependency updates
 
 Pull requests run `pnpm check`, a production build, and Playwright smoke tests in

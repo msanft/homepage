@@ -5,3 +5,4 @@ node_modules
 .direnv/
 playwright-report/
 test-results/
+.amp/portals/

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# This static site has no runtime authentication or backing services to repair.
+# Dependencies persist in the snapshot; dev servers use .amp/services.yaml.
