@@ -11,7 +11,7 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "marked": "^18.0.14",
+    "marked": "^18.1.0",
     "marked-footnote": "^1.4.0",
     "marked-gfm-heading-id": "^4.1.4",
     "smol-toml": "^1.9.0"
