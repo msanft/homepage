@@ -76,6 +76,7 @@ test('every published page, internal link, and image loads', async ({ page, requ
     await expect(page.getByRole('main')).toBeVisible();
     await expect(page.getByRole('main')).not.toBeEmpty();
     await expect(page).toHaveTitle(/Moritz Sanft/);
+    await expect(page.locator('link[rel="icon"][type="image/png"]')).toHaveAttribute('href', /\/favicon\.png$/);
 
     for (const image of await page.locator('main img').all()) {
       await image.scrollIntoViewIfNeeded();
@@ -109,7 +110,7 @@ test('RSS feeds and static assets are present', async ({ request }) => {
     expect(xml).toContain('<item>');
     expect(xml).not.toContain('/blog/test-post/');
   }
-  for (const path of ['/pgp.txt', '/robots.txt', '/og.png']) {
+  for (const path of ['/pgp.txt', '/robots.txt', '/og.png', '/favicon.ico', '/favicon.png']) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(200);
     expect((await response.body()).length, path).toBeGreaterThan(0);
