@@ -1,7 +1,7 @@
 <script>
-  import { base } from '$app/paths';
-  import { formatDate } from '$lib/date.js';
-  import { site } from '$lib/site.js';
+  import { resolve } from '$app/paths';
+  import { formatDate } from '#lib/date.js';
+  import { site } from '#lib/site.js';
 
   let { data } = $props();
 </script>
@@ -26,7 +26,7 @@
 <ul class="section-list">
   {#each data.talks as talk}
     <li>
-      <h2><a href={`${base}/talks/${talk.slug}/`}>{talk.title}</a></h2>
+      <h2><a href={resolve(`talks/${talk.slug}/`)}>{talk.title}</a></h2>
       <ul class="talk-meta">
         {#if talk.date}
           <li><time datetime={talk.date}>{formatDate(talk.date)}</time></li>

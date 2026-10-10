@@ -1,6 +1,6 @@
 <script>
-  import { base } from '$app/paths';
-  import { site } from '$lib/site.js';
+  import { resolve } from '$app/paths';
+  import { site } from '#lib/site.js';
   import '../app.css';
 
   let { children } = $props();
@@ -8,12 +8,12 @@
 
 <div class="site">
   <header>
-    <h1 class="site-title"><a href={`${base}/`}>{site.title}</a></h1>
+    <h1 class="site-title"><a href={resolve('/')}>{site.title}</a></h1>
     <nav aria-label="Main navigation">
       <ul>
-        <li><a href={`${base}/blog/`}>Blog</a></li>
-        <li><a href={`${base}/talks/`}>Talks</a></li>
-        <li><a href={`${base}/publications/`}>Publications</a></li>
+        <li><a href={resolve('blog/')}>Blog</a></li>
+        <li><a href={resolve('talks/')}>Talks</a></li>
+        <li><a href={resolve('publications/')}>Publications</a></li>
       </ul>
     </nav>
   </header>
