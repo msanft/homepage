@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { listDocuments, readDocument } from '$lib/server/content.js';
+import { listDocuments, readDocument } from '#lib/server/content.js';
 
 export async function entries() {
   return (await listDocuments('blog')).map(({ slug }) => ({ slug }));

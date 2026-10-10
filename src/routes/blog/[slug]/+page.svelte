@@ -1,6 +1,6 @@
 <script>
-  import { formatDate } from '$lib/date.js';
-  import { site } from '$lib/site.js';
+  import { formatDate } from '#lib/date.js';
+  import { site } from '#lib/site.js';
 
   let { data } = $props();
   const canonical = $derived(`${site.url}/blog/${data.slug}/`);

@@ -1,5 +1,5 @@
-import { listDocuments } from '$lib/server/content.js';
-import { site } from '$lib/site.js';
+import { listDocuments } from '#lib/server/content.js';
+import { site } from '#lib/site.js';
 
 /** @param {string} value */
 function escapeXml(value) {

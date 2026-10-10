@@ -1,5 +1,5 @@
 <script>
-  import { site } from '$lib/site.js';
+  import { site } from '#lib/site.js';
 
   const publications = [
     {

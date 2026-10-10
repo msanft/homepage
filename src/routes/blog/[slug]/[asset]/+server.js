@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { listAssets, readAsset } from '$lib/server/content.js';
+import { listAssets, readAsset } from '#lib/server/content.js';
 
 /** @type {Record<string, string>} */
 const contentTypes = {

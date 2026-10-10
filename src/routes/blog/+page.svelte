@@ -1,7 +1,7 @@
 <script>
-  import { base } from '$app/paths';
-  import { formatDate } from '$lib/date.js';
-  import { site } from '$lib/site.js';
+  import { resolve } from '$app/paths';
+  import { formatDate } from '#lib/date.js';
+  import { site } from '#lib/site.js';
 
   let { data } = $props();
 </script>
@@ -27,7 +27,7 @@
 <ul class="section-list">
   {#each data.posts as post}
     <li>
-      <h2><a href={`${base}/blog/${post.slug}/`}>{post.title}</a></h2>
+      <h2><a href={resolve(`blog/${post.slug}/`)}>{post.title}</a></h2>
       {#if post.date}
         <time datetime={post.date}>{formatDate(post.date)}</time>
       {/if}
