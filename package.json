@@ -14,7 +14,7 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "marked": "^18.1.1",
+    "marked": "^18.1.2",
     "marked-footnote": "^1.4.0",
     "marked-gfm-heading-id": "^4.1.4",
     "smol-toml": "^1.9.1"
@@ -25,10 +25,10 @@
     "@sveltejs/kit": "^3.1.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@types/node": "^26.6.5",
-    "svelte": "^5.57.2",
+    "svelte": "^5.57.3",
     "svelte-check": "^4.7.7",
     "typescript": "^6.0.2",
-    "vite": "^8.3.4"
+    "vite": "^8.3.5"
   },
   "packageManager": "pnpm@10.18.3",
   "engines": {
